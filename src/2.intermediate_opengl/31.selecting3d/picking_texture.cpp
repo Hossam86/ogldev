@@ -41,3 +41,24 @@ void Picking_Texture::init(unsigned int width, unsigned int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+void Picking_Texture::enable_writing()
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+}
+void Picking_Texture::disable_writing()
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+Pixel_Info Picking_Texture::read_pixel(unsigned int x, unsigned int y)
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+	Pixel_Info pixel;
+	glReadPixels(x, y, 1, 1, GL_RGB_INTEGER, GL_UNSIGNED_INT, &pixel);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	return pixel;
+}

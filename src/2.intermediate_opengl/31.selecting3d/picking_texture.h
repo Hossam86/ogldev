@@ -1,5 +1,17 @@
+#pragma once
 #include <glad/glad.h>
 #include <cstdio>
+
+struct Pixel_Info
+{
+	unsigned int object_id = 0;
+	unsigned int draw_id = 0;
+	unsigned int prim_id = 0;
+	void print()
+	{
+		printf(" object %d draw %d prim %d\n", object_id, draw_id, prim_id);
+	}
+};
 
 class Picking_Texture
 {
@@ -9,17 +21,7 @@ public:
 
 	void init(unsigned int window_width, unsigned int window_height);
 	void enable_writing();
-	void disaple_writing();
-	struct Pixel_Info
-	{
-		unsigned int object_id = 0;
-		unsigned int draw_id = 0;
-		unsigned int prim_id = 0;
-		void print()
-		{
-			printf(" object %d draw %d prim %d\n", object_id, draw_id, prim_id);
-		}
-	};
+	void disable_writing();
 
 private:
 	GLuint m_fbo;			  // handle to frame buffer
