@@ -1,5 +1,5 @@
 #include "picking_texture.h"
-#include <cstdint>
+#include <stdlib.h>
 
 Picking_Texture::Picking_Texture(/* args */)
 {
@@ -26,8 +26,18 @@ void Picking_Texture::init(unsigned int width, unsigned int height)
     // create the texture object for the depth buffer
     glGenTextures(1, &m_depth_texture);
     glBindBuffer(GL_TEXTURE_2D, m_depth_texture);
-    glTexImage2D(GL_TEXTURE2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAME_BUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_texture, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_texture, 0);
 
     // verify that fbo is correct
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("FB error, status: 0x%x\n", status);
+        exit(1);
+    }
+    // restore the default frame buffer
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
