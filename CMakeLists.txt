@@ -28,7 +28,16 @@ CPMAddPackage(
 	GIT_REPOSITORY git@github.com:glfw/glfw.git
 	GIT_TAG 3.3.8
 )
-
+# assimp
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+CPMAddPackage(
+	NAME assimp
+	GIT_REPOSITORY git@github.com:assimp/assimp.git
+	GIT_TAG v5.3.0
+)
 # We manually download GLM into our source directory so the user can access
 # glm through 'glm/...'. There is no build step since this is a header only
 # library.
@@ -40,11 +49,18 @@ CPMAddPackage(
 )
 include_directories(${glm_SOURCE_DIR}/)
 
+CPMAddPackage(
+	NAME meshoptimizer
+	GIT_REPOSITORY git@github.com:zeux/meshoptimizer.git
+	GIT_TAG v0.20
+)
+
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # first create relevant static libraries required for other projects
 add_library(GLAD src/glad.c)
-set(LIBS ${LIBS} glfw GLAD)
+set(LIBS ${LIBS} GLAD glfw assimp meshoptimizer)
 
 add_library(STB_IMAGE "src/stb_image.cpp")
 set(LIBS ${LIBS} STB_IMAGE)
