@@ -13,7 +13,7 @@ namespace ogl
 	{
 		if (!glfwInit())
 		{
-			OGLDEV_ERROR("Error initialization GLFW");
+			OGLDEV_ERROR0("Error initialization GLFW");
 		}
 
 		int Major, Minor, Rev;
@@ -128,9 +128,8 @@ namespace ogl
 			enable_debug_output();
 
 			glfwSwapInterval(1);
-
-			return window;
 		}
+		return window;
 	}
 
 } // namespace ogl

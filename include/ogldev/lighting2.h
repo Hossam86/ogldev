@@ -9,223 +9,294 @@
 
 // This version of the lighting technique was updated for youtube
 
-class BaseLight {
-public:
-  Vector3f Color = Vector3f(1.0f, 1.0f, 1.0f);
-  float AmbientIntensity = 0.0f;
-  float DiffuseIntensity = 0.0f;
+namespace ogl
+{
 
-  bool IsZero() {
-    return ((AmbientIntensity == 0) && (DiffuseIntensity == 0.0f));
-  }
-};
+	class Light
+	{
+	public:
+		Vector3f Color = Vector3f(1.0f, 1.0f, 1.0f);
+		float AmbientIntensity = 0.0f;
+		float DiffuseIntensity = 0.0f;
 
-class DirectionalLight : public BaseLight {
-public:
-  Vector3f WorldDirection = Vector3f(0.0f, 0.0f, 0.0f);
+		bool
+		IsZero()
+		{
+			return ((AmbientIntensity == 0) && (DiffuseIntensity == 0.0f));
+		}
+	};
 
-  void CalcLocalDirection(const WorldTrans &worldTransform);
+	class DirectionalLight : public Light
+	{
+	public:
+		Vector3f WorldDirection = Vector3f(0.0f, 0.0f, 0.0f);
 
-  const Vector3f &GetLocalDirection() const { return LocalDirection; }
+		void
+		CalcLocalDirection(const ogl::WorldTrans& worldTransform);
 
-private:
-  Vector3f LocalDirection = Vector3f(0.0f, 0.0f, 0.0f);
-};
+		const Vector3f&
+		GetLocalDirection() const
+		{
+			return LocalDirection;
+		}
 
-struct LightAttenuation {
-  float Constant = 1.0f;
-  float Linear = 0.0f;
-  float Exp = 0.0f;
-};
+	private:
+		Vector3f LocalDirection = Vector3f(0.0f, 0.0f, 0.0f);
+	};
 
-class PointLight : public BaseLight {
-public:
-  Vector3f WorldPosition = Vector3f(0.0f, 0.0f, 0.0f);
-  LightAttenuation Attenuation;
+	struct LightAttenuation
+	{
+		float Constant = 1.0f;
+		float Linear = 0.0f;
+		float Exp = 0.0f;
+	};
 
-  void CalcLocalPosition(const WorldTrans &worldTransform);
+	class PointLight : public Light
+	{
+	public:
+		Vector3f WorldPosition = Vector3f(0.0f, 0.0f, 0.0f);
+		LightAttenuation Attenuation;
 
-  const Vector3f &GetLocalPosition() const { return LocalPosition; }
+		void
+		CalcLocalPosition(const ogl::WorldTrans& worldTransform);
 
-private:
-  Vector3f LocalPosition = Vector3f(0.0f, 0.0f, 0.0f);
-};
+		const Vector3f&
+		GetLocalPosition() const
+		{
+			return LocalPosition;
+		}
 
-class SpotLight : public PointLight {
-public:
-  Vector3f WorldDirection = Vector3f(0.0f, 0.0f, 0.0f);
-  float Cutoff = 0.0f;
+	private:
+		Vector3f LocalPosition = Vector3f(0.0f, 0.0f, 0.0f);
+	};
 
-  void CalcLocalDirectionAndPosition(const WorldTrans &worldTransform);
+	class SpotLight : public PointLight
+	{
+	public:
+		Vector3f WorldDirection = Vector3f(0.0f, 0.0f, 0.0f);
+		float Cutoff = 0.0f;
 
-  const Vector3f &GetLocalDirection() const { return LocalDirection; }
+		void
+		CalcLocalDirectionAndPosition(const ogl::WorldTrans& worldTransform);
 
-private:
-  Vector3f LocalDirection = Vector3f(0.0f, 0.0f, 0.0f);
-};
+		const Vector3f&
+		GetLocalDirection() const
+		{
+			return LocalDirection;
+		}
 
-struct PBRLight {
-  Vector4f PosDir; // if w == 1 position, else direction
-  Vector3f Intensity;
-};
+	private:
+		Vector3f LocalDirection = Vector3f(0.0f, 0.0f, 0.0f);
+	};
 
-class LightingTechnique : public Technique, public IRenderCallbacks {
-public:
-  static const unsigned int MAX_POINT_LIGHTS = 2;
-  static const unsigned int MAX_SPOT_LIGHTS = 2;
+	struct PBRLight
+	{
+		Vector4f PosDir; // if w == 1 position, else direction
+		Vector3f Intensity;
+	};
 
-  static const int SUBTECH_DEFAULT = 0;
-  static const int SUBTECH_PASSTHRU_GS = 1;
-  static const int SUBTECH_WIREFRAME_ON_MESH = 2;
+	class LightingTechnique : public Technique, public IRenderCallbacks
+	{
+	public:
+		static const unsigned int MAX_POINT_LIGHTS = 2;
+		static const unsigned int MAX_SPOT_LIGHTS = 2;
 
-  LightingTechnique();
+		static const int SUBTECH_DEFAULT = 0;
+		static const int SUBTECH_PASSTHRU_GS = 1;
+		static const int SUBTECH_WIREFRAME_ON_MESH = 2;
 
-  virtual bool Init(int SubTech = SUBTECH_DEFAULT);
+		LightingTechnique();
 
-  void SetWVP(const Matrix4f &WVP);
-  void SetWorldMatrix(const Matrix4f &WVP);
-  void SetViewportMatrix(const Matrix4f &ViewportMatrix);
-  void
-  SetLightWVP(const Matrix4f &LightWVP); // required only for shadow mapping
-  void SetTextureUnit(unsigned int TextureUnit);
-  void SetShadowMapTextureUnit(unsigned int TextureUnit);
-  void SetShadowCubeMapTextureUnit(unsigned int TextureUnit);
-  void SetShadowMapSize(unsigned int Width, unsigned int Height);
-  void SetShadowMapFilterSize(unsigned int Size);
-  void SetShadowMapOffsetTextureUnit(unsigned int TextureUnit);
-  void SetShadowMapOffsetTextureParams(float TextureSize, float FilterSize,
-                                       float Radius);
-  void SetSpecularExponentTextureUnit(unsigned int TextureUnit);
-  void SetDirectionalLight(const DirectionalLight &DirLight,
-                           bool WithDir = true);
-  void UpdateDirLightDirection(const DirectionalLight &DirLight);
-  void SetPointLights(unsigned int NumLights, const PointLight *pLights,
-                      bool WithPos = true);
-  void UpdatePointLight(unsigned int Index, const PointLight &Light);
-  void UpdatePointLightsPos(unsigned int NumLights, const PointLight *pLights);
-  void SetSpotLights(unsigned int NumLights, const SpotLight *pLights,
-                     bool WithPosAndDir = true);
-  void UpdateSpotLight(unsigned int Index, const SpotLight &Light);
-  void UpdateSpotLightsPosAndDir(unsigned int NumLights,
-                                 const SpotLight *pLights);
-  void SetCameraLocalPos(const Vector3f &CameraLocalPos);
-  void SetCameraWorldPos(const Vector3f &CameraWorldPos);
-  virtual void SetMaterial(const Material &material);
-  void SetColorMod(const Vector4f &ColorMod);
-  void SetColorAdd(const Vector4f &ColorAdd);
-  void ControlRimLight(bool IsEnabled);
-  void ControlCellShading(bool IsEnabled);
-  virtual void ControlSpecularExponent(bool IsEnabled);
-  void SetLinearFog(float FogStart, float FogEnd);
-  void SetExpFog(float FogEnd, float FogDensity);
-  void SetExpSquaredFog(float FogEnd, float FogDensity);
-  void SetLayeredFog(float FogTop, float FogEnd);
-  void SetFogColor(const Vector3f &FogColor);
-  void SetAnimatedFog(float FogEnd, float FogDensity);
-  void SetFogTime(float Time);
-  void SetPBR(bool IsPBR);
-  void SetPBRMaterial(const PBRMaterial &Material);
-  void SetClipPlane(const Vector3f &Normal, const Vector3f &PointOnPlane);
-  //    void SetPBRLight(const PBRLight& Light);
-  void SetWireframeWidth(float Width);
-  void SetWireframeColor(const Vector4f &Color);
+		virtual bool
+		Init(int SubTech = SUBTECH_DEFAULT);
 
-protected:
-  bool InitCommon();
+		void
+		SetWVP(const Matrix4f& WVP);
+		void
+		SetWorldMatrix(const Matrix4f& WVP);
+		void
+		SetViewportMatrix(const Matrix4f& ViewportMatrix);
+		void
+		SetLightWVP(const Matrix4f& LightWVP); // required only for shadow mapping
+		void
+		SetTextureUnit(unsigned int TextureUnit);
+		void
+		SetShadowMapTextureUnit(unsigned int TextureUnit);
+		void
+		SetShadowCubeMapTextureUnit(unsigned int TextureUnit);
+		void
+		SetShadowMapSize(unsigned int Width, unsigned int Height);
+		void
+		SetShadowMapFilterSize(unsigned int Size);
+		void
+		SetShadowMapOffsetTextureUnit(unsigned int TextureUnit);
+		void
+		SetShadowMapOffsetTextureParams(float TextureSize, float FilterSize, float Radius);
+		void
+		SetSpecularExponentTextureUnit(unsigned int TextureUnit);
+		void
+		SetDirectionalLight(const DirectionalLight& DirLight, bool WithDir = true);
+		void
+		UpdateDirLightDirection(const DirectionalLight& DirLight);
+		void
+		SetPointLights(unsigned int NumLights, const PointLight* pLights, bool WithPos = true);
+		void
+		UpdatePointLight(unsigned int Index, const PointLight& Light);
+		void
+		UpdatePointLightsPos(unsigned int NumLights, const PointLight* pLights);
+		void
+		SetSpotLights(unsigned int NumLights, const SpotLight* pLights, bool WithPosAndDir = true);
+		void
+		UpdateSpotLight(unsigned int Index, const SpotLight& Light);
+		void
+		UpdateSpotLightsPosAndDir(unsigned int NumLights, const SpotLight* pLights);
+		void
+		SetCameraLocalPos(const Vector3f& CameraLocalPos);
+		void
+		SetCameraWorldPos(const Vector3f& CameraWorldPos);
+		virtual void
+		SetMaterial(const Material& material);
+		void
+		SetColorMod(const Vector4f& ColorMod);
+		void
+		SetColorAdd(const Vector4f& ColorAdd);
+		void
+		ControlRimLight(bool IsEnabled);
+		void
+		ControlCellShading(bool IsEnabled);
+		virtual void
+		ControlSpecularExponent(bool IsEnabled);
+		void
+		SetLinearFog(float FogStart, float FogEnd);
+		void
+		SetExpFog(float FogEnd, float FogDensity);
+		void
+		SetExpSquaredFog(float FogEnd, float FogDensity);
+		void
+		SetLayeredFog(float FogTop, float FogEnd);
+		void
+		SetFogColor(const Vector3f& FogColor);
+		void
+		SetAnimatedFog(float FogEnd, float FogDensity);
+		void
+		SetFogTime(float Time);
+		void
+		SetPBR(bool IsPBR);
+		void
+		SetPBRMaterial(const PBRMaterial& Material);
+		void
+		SetClipPlane(const Vector3f& Normal, const Vector3f& PointOnPlane);
+		//    void SetPBRLight(const PBRLight& Light);
+		void
+		SetWireframeWidth(float Width);
+		void
+		SetWireframeColor(const Vector4f& Color);
 
-private:
-  void SetExpFogCommon(float FogEnd, float FogDensity);
+	protected:
+		bool
+		InitCommon();
 
-  int m_subTech = SUBTECH_DEFAULT;
+	private:
+		void
+		SetExpFogCommon(float FogEnd, float FogDensity);
 
-  GLuint WVPLoc = INVALID_UNIFORM_LOCATION;
-  GLuint WorldMatrixLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ViewportMatrixLoc = INVALID_UNIFORM_LOCATION;
-  GLuint LightWVPLoc =
-      INVALID_UNIFORM_LOCATION; // required only for shadow mapping
-  GLuint samplerLoc = INVALID_UNIFORM_LOCATION;
-  GLuint shadowMapLoc = INVALID_UNIFORM_LOCATION;
-  GLuint shadowCubeMapLoc = INVALID_UNIFORM_LOCATION;
-  GLuint shadowMapWidthLoc = INVALID_UNIFORM_LOCATION;
-  GLuint shadowMapHeightLoc = INVALID_UNIFORM_LOCATION;
-  GLuint shadowMapFilterSizeLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ShadowMapOffsetTextureLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ShadowMapOffsetTextureSizeLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ShadowMapOffsetFilterSizeLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ShadowMapRandomRadiusLoc = INVALID_UNIFORM_LOCATION;
-  GLuint samplerSpecularExponentLoc = INVALID_UNIFORM_LOCATION;
-  GLuint CameraLocalPosLoc = INVALID_UNIFORM_LOCATION;
-  GLuint CameraWorldPosLoc = INVALID_UNIFORM_LOCATION;
-  GLuint NumPointLightsLoc = INVALID_UNIFORM_LOCATION;
-  GLuint NumSpotLightsLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ColorModLocation = INVALID_UNIFORM_LOCATION;
-  GLuint ColorAddLocation = INVALID_UNIFORM_LOCATION;
-  GLuint EnableRimLightLoc = INVALID_UNIFORM_LOCATION;
-  GLuint EnableCellShadingLoc = INVALID_UNIFORM_LOCATION;
-  GLuint EnableSpecularExponent = INVALID_UNIFORM_LOCATION;
-  GLuint FogStartLoc = INVALID_UNIFORM_LOCATION;
-  GLuint FogEndLoc = INVALID_UNIFORM_LOCATION;
-  GLuint FogColorLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ExpFogDensityLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ExpSquaredFogEnabledLoc = INVALID_UNIFORM_LOCATION;
-  GLuint LayeredFogTopLoc = INVALID_UNIFORM_LOCATION;
-  GLuint FogTimeLoc = INVALID_UNIFORM_LOCATION;
-  GLuint IsPBRLoc = INVALID_UNIFORM_LOCATION;
-  GLuint ClipPlaneLoc = INVALID_UNIFORM_LOCATION;
-  GLuint WireframeWidthLoc = INVALID_UNIFORM_LOCATION;
-  GLuint WireframeColorLoc = INVALID_UNIFORM_LOCATION;
+		int m_subTech = SUBTECH_DEFAULT;
 
-  struct {
-    GLuint AmbientColor;
-    GLuint DiffuseColor;
-    GLuint SpecularColor;
-  } materialLoc;
+		GLuint WVPLoc = INVALID_UNIFORM_LOCATION;
+		GLuint WorldMatrixLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ViewportMatrixLoc = INVALID_UNIFORM_LOCATION;
+		GLuint LightWVPLoc = INVALID_UNIFORM_LOCATION; // required only for shadow mapping
+		GLuint samplerLoc = INVALID_UNIFORM_LOCATION;
+		GLuint shadowMapLoc = INVALID_UNIFORM_LOCATION;
+		GLuint shadowCubeMapLoc = INVALID_UNIFORM_LOCATION;
+		GLuint shadowMapWidthLoc = INVALID_UNIFORM_LOCATION;
+		GLuint shadowMapHeightLoc = INVALID_UNIFORM_LOCATION;
+		GLuint shadowMapFilterSizeLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ShadowMapOffsetTextureLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ShadowMapOffsetTextureSizeLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ShadowMapOffsetFilterSizeLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ShadowMapRandomRadiusLoc = INVALID_UNIFORM_LOCATION;
+		GLuint samplerSpecularExponentLoc = INVALID_UNIFORM_LOCATION;
+		GLuint CameraLocalPosLoc = INVALID_UNIFORM_LOCATION;
+		GLuint CameraWorldPosLoc = INVALID_UNIFORM_LOCATION;
+		GLuint NumPointLightsLoc = INVALID_UNIFORM_LOCATION;
+		GLuint NumSpotLightsLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ColorModLocation = INVALID_UNIFORM_LOCATION;
+		GLuint ColorAddLocation = INVALID_UNIFORM_LOCATION;
+		GLuint EnableRimLightLoc = INVALID_UNIFORM_LOCATION;
+		GLuint EnableCellShadingLoc = INVALID_UNIFORM_LOCATION;
+		GLuint EnableSpecularExponent = INVALID_UNIFORM_LOCATION;
+		GLuint FogStartLoc = INVALID_UNIFORM_LOCATION;
+		GLuint FogEndLoc = INVALID_UNIFORM_LOCATION;
+		GLuint FogColorLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ExpFogDensityLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ExpSquaredFogEnabledLoc = INVALID_UNIFORM_LOCATION;
+		GLuint LayeredFogTopLoc = INVALID_UNIFORM_LOCATION;
+		GLuint FogTimeLoc = INVALID_UNIFORM_LOCATION;
+		GLuint IsPBRLoc = INVALID_UNIFORM_LOCATION;
+		GLuint ClipPlaneLoc = INVALID_UNIFORM_LOCATION;
+		GLuint WireframeWidthLoc = INVALID_UNIFORM_LOCATION;
+		GLuint WireframeColorLoc = INVALID_UNIFORM_LOCATION;
 
-  struct {
-    GLuint Color;
-    GLuint AmbientIntensity;
-    GLuint Direction;
-    GLuint DiffuseIntensity;
-  } dirLightLoc;
+		struct
+		{
+			GLuint AmbientColor;
+			GLuint DiffuseColor;
+			GLuint SpecularColor;
+		} materialLoc;
 
-  struct {
-    GLuint Color;
-    GLuint AmbientIntensity;
-    GLuint LocalPos;
-    GLuint WorldPos;
-    GLuint DiffuseIntensity;
+		struct
+		{
+			GLuint Color;
+			GLuint AmbientIntensity;
+			GLuint Direction;
+			GLuint DiffuseIntensity;
+		} dirLightLoc;
 
-    struct {
-      GLuint Constant;
-      GLuint Linear;
-      GLuint Exp;
-    } Atten;
-  } PointLightsLocation[MAX_POINT_LIGHTS];
+		struct
+		{
+			GLuint Color;
+			GLuint AmbientIntensity;
+			GLuint LocalPos;
+			GLuint WorldPos;
+			GLuint DiffuseIntensity;
 
-  struct {
-    GLuint Color;
-    GLuint AmbientIntensity;
-    GLuint DiffuseIntensity;
-    GLuint Position;
-    GLuint Direction;
-    GLuint Cutoff;
-    struct {
-      GLuint Constant;
-      GLuint Linear;
-      GLuint Exp;
-    } Atten;
-  } SpotLightsLocation[MAX_SPOT_LIGHTS];
+			struct
+			{
+				GLuint Constant;
+				GLuint Linear;
+				GLuint Exp;
+			} Atten;
+		} PointLightsLocation[MAX_POINT_LIGHTS];
 
-  /*    struct {
-      GLuint PosDir;
-      GLuint Intensity;
-      } PBRLightLoc[MAX_PBR_LIGHTS];*/
+		struct
+		{
+			GLuint Color;
+			GLuint AmbientIntensity;
+			GLuint DiffuseIntensity;
+			GLuint Position;
+			GLuint Direction;
+			GLuint Cutoff;
+			struct
+			{
+				GLuint Constant;
+				GLuint Linear;
+				GLuint Exp;
+			} Atten;
+		} SpotLightsLocation[MAX_SPOT_LIGHTS];
 
-  struct {
-    GLuint Roughness;
-    GLuint IsMetal;
-    GLuint Color;
-  } PBRMaterialLoc;
-};
+		/*    struct {
+			GLuint PosDir;
+			GLuint Intensity;
+			} PBRLightLoc[MAX_PBR_LIGHTS];*/
+
+		struct
+		{
+			GLuint Roughness;
+			GLuint IsMetal;
+			GLuint Color;
+		} PBRMaterialLoc;
+	};
 
 #endif /* NEW_LIGHTING_TECHNIQUE_H */
+}

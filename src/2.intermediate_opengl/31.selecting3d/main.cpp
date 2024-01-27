@@ -1,6 +1,7 @@
 #include "application.h"
 
 using namespace picking;
+
 int
 main()
 {

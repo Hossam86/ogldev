@@ -32,11 +32,11 @@ namespace picking
 	{
 	private:
 		GLFWwindow* window = NULL;
-		LightingTechnique m_lightingEffect;
+		ogl::LightingTechnique m_lightingEffect;
 		PickingTechnique m_pickingEffect;
 		SimpleColorTechnique m_simpleColorEffect;
 		ogl::BasicCamera* m_pGameCamera = NULL;
-		DirectionalLight m_directionalLight;
+		ogl::DirectionalLight m_directionalLight;
 		BasicMesh* pMesh = NULL;
 		Picking_Texture m_pickingTexture;
 		Vector3f m_worldPos[3];
