@@ -1,5 +1,6 @@
 #include "application.h"
 #include "GLFW/glfw3.h"
+#include "ogldev/camera.h"
 #include "ogldev/math3d.h"
 #include "ogldev/utility.h"
 #include "ogldev/world_transform.h"
@@ -51,6 +52,31 @@ namespace picking
 	void
 	Picking3d::InitCallBacks()
 	{
+	}
+
+	void
+	Picking3d::InitMesh()
+	{
+	}
+
+	void
+	Picking3d::InitCamera()
+	{
+		Vector3f pos(0.0f, 5.0f, -22.0f);
+		Vector3f Target(0.0f, -0.2f, 1.0f);
+		Vector3f Up(0.0f, 1.0f, 0.0f);
+
+		float FOV = 45.0f;
+		float zNear = 0.1f;
+		float zFar = 100.f;
+		PersProjInfo persProjInfo = {FOV, (float)width, (float)height, zNear, zFar};
+		m_pGameCamera = new ogl::BasicCamera(persProjInfo, pos, Target, Up);
+
+		if (!m_lightingEffect.Init())
+		{
+			printf("Error Initializing The Lighting Technique ");
+			exit(1);
+		}
 	}
 
 	void
