@@ -11,15 +11,15 @@
 
 namespace picking
 {
-	// callbacks
+	// Callbacks
 	void
-	key_callback();
+	KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 	void
-	cursor_pos_callback();
+	CursorPosCallback(GLFWwindow* window, double x, double y);
 
 	void
-	mouse_button_callback();
+	MouseButtonCallback(GLFWwindow* window, int Button, int Action, int Mode);
 
 	struct
 	{
@@ -66,7 +66,7 @@ namespace picking
 		KeyboardCB(uint key, int state);
 
 		void
-		PassiveMouseCB();
+		PassiveMouseCB(int x, int y);
 
 		void
 		MouseCB(int button, int action, int x, int y);

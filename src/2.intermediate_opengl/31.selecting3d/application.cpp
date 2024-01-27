@@ -1,5 +1,6 @@
 #include "application.h"
 #include "GLFW/glfw3.h"
+#include "ogldev/basic_mesh.h"
 #include "ogldev/camera.h"
 #include "ogldev/math3d.h"
 #include "ogldev/utility.h"
@@ -9,6 +10,7 @@
 
 namespace picking
 {
+	// callbacks
 
 	Picking3d::Picking3d()
 	{
@@ -52,11 +54,19 @@ namespace picking
 	void
 	Picking3d::InitCallBacks()
 	{
+		glfwSetKeyCallback(window, KeyCallback);
+		glfwSetMouseButtonCallback(window, MouseButtonCallback);
+		glfwSetCursorPosCallback(window, CursorPosCallback);
 	}
 
 	void
 	Picking3d::InitMesh()
 	{
+		pMesh = new BasicMesh();
+		pMesh->LoadMesh("../Resources/spider.obj");
+		ogl::WorldTrans& world_transfom = pMesh->GetWorldTransform();
+		world_transfom.SetScale(0.1f);
+		world_transfom.SetRotation(0.0f, 90.f, 0.0f);
 	}
 
 	void
@@ -112,5 +122,4 @@ namespace picking
 			pMesh->Render(&m_pickingEffect);
 		}
 	}
-
 }
