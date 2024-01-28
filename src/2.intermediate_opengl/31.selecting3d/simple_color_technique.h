@@ -1,8 +1,7 @@
-#ifndef SIMPLE_COLOR_TECHNIQUE_H
-#define SIMPLE_COLOR_TECHNIQUE_H
+#pragma once
 
-#include "ogldev/technique.h"
 #include <ogldev/math3d.h>
+#include <ogldev/technique.h>
 
 class SimpleColorTechnique : public Technique
 {
@@ -18,5 +17,3 @@ public:
 private:
 	GLuint m_WVPLocation;
 };
-
-#endif /* SIMPLE_COLOR_TECHNIQUE_H */

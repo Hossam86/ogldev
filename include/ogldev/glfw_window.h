@@ -1,7 +1,6 @@
-#include "GLFW/glfw3.h"
-// #include <cstddef>
-// #include <cstdlib>
+#pragma once
 #include <ogldev/utility.h>
+#include <GLFW/glfw3.h>
 
 static int glMajorVersion = 0;
 static int glMinorVersion = 0;

@@ -1,29 +1,25 @@
 #include "application.h"
 
-using namespace picking;
-
 // app instance;
 Picking3d* app = NULL;
 
-static void
+void
 KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	app->KeyboardCB(key, action);
 }
 
-static void
+void
 CursorPosCallback(GLFWwindow* window, double x, double y)
 {
 	app->PassiveMouseCB((int)x, (int)y);
 }
 
-static void
+void
 MouseButtonCallback(GLFWwindow* window, int Button, int Action, int Mode)
 {
 	double x, y;
-
 	glfwGetCursorPos(window, &x, &y);
-
 	app->MouseCB(Button, Action, (int)x, (int)y);
 }
 int
