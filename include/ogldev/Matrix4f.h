@@ -4,9 +4,9 @@
 #include <assimp/matrix4x4.h>
 #include <assimp/vector3.h>
 
-#include <ogldev/quat.h>
+#include <ogldev/Quaternion.h>
+#include <ogldev/Vector4f.h>
 #include <ogldev/utility.h>
-#include <ogldev/vec4f.h>
 
 class Matrix4f
 {

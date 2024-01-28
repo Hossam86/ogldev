@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ogldev/mat3f.h>
-#include <ogldev/mat4f.h>
+#include <ogldev/Matrix3f.h>
+#include <ogldev/Matrix4f.h>
 
 namespace ogl
 {

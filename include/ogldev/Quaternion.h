@@ -1,8 +1,6 @@
 #pragma once
 
-#include <ogldev/math3d.h>
-
-#include <ogldev/vec3f.h>
+#include <ogldev/Vector3f.h>
 
 struct Quaternion
 {

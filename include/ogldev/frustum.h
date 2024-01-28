@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ogldev/vec3f.h"
 #include <ogldev/AABB.h>
-#include <ogldev/mat4f.h>
+#include <ogldev/Matrix4f.h>
+#include <ogldev/Vector4f.h>
 
 class Frustum
 {

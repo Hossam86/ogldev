@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <math.h>
 
-#include <ogldev/vec3f.h>
+#include <ogldev/Vector3f.h>
 
 // struct PersProjInfo
 // {
@@ -15,27 +15,6 @@
 // 	float zNear;
 // 	float zFar;
 // };
-
-struct OrthoProjInfo
-{
-	float r; // right
-	float l; // left
-	float b; // bottom
-	float t; // top
-	float n; // z near
-	float f; // z far
-
-	float Width;
-	float Height;
-
-	void
-	Print()
-	{
-		printf("Left %f   Right %f\n", l, r);
-		printf("Bottom %f Top %f\n", b, t);
-		printf("Near %f   Far %f\n", n, f);
-	}
-};
 
 class AABB
 {

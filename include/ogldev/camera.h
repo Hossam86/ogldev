@@ -1,13 +1,35 @@
 #pragma once
 #include <GLFW/glfw3.h>
+#include <ogldev/Matrix4f.h>
+#include <ogldev/Vector2i.h>
+#include <ogldev/Vector3f.h>
 #include <ogldev/frustum.h>
-#include <ogldev/mat4f.h>
-#include <ogldev/vec3f.h>
 
 namespace ogl
 {
 	static int MARGIN = 40;
 	static float EDGE_STEP = 0.5f;
+
+	struct OrthoProjInfo
+	{
+		float r; // right
+		float l; // left
+		float b; // bottom
+		float t; // top
+		float n; // z near
+		float f; // z far
+
+		float Width;
+		float Height;
+
+		void
+		Print()
+		{
+			printf("Left %f   Right %f\n", l, r);
+			printf("Bottom %f Top %f\n", b, t);
+			printf("Near %f   Far %f\n", n, f);
+		}
+	};
 	class BasicCamera
 	{
 	public:
