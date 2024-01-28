@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ogldev/math3d.h>
 #include <ogldev/texture.h>
+#include <ogldev/vec3f.h>
 
 struct PBRMaterial
 {

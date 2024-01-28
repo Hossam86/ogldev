@@ -1,12 +1,14 @@
 #pragma once
 
-#include <glad/glad.h>
+#include <math.h>
 #include <string>
 
-#include <iostream>
-#include <math.h>
+
+#include <glad/glad.h>
+
 #include <ogldev/texture.h>
 #include <ogldev/utility.h>
+
 #include <stb_image/stb_image.h>
 #include <stb_image/stb_image_write.h>
 

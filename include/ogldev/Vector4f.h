@@ -3,8 +3,8 @@
 #include <cassert>
 #include <cstdio>
 #include <math.h>
+#include <ogldev/Vector3f.h>
 
-#include <ogldev/vec3f.h>
 struct Vector4f
 {
 	float x;
