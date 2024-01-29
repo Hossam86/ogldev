@@ -1,7 +1,6 @@
 #pragma once
 
-#include <ogldev/Matrix3f.h>
-#include <ogldev/Matrix4f.h>
+#include <ogldev/math3d.h>
 
 namespace ogl
 {
@@ -88,7 +87,7 @@ namespace ogl
 			// (assuming uniform scaling)
 			Matrix3f WorldToLocal = World3f.Transpose();
 
-			Vector3f LocalDirection = WorldToLocal * WorldDirection;
+			Vector3f LocalDirection = WorldToLocal * WorldDir;
 
 			LocalDirection = LocalDirection.Normalize();
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ogldev/basic_mesh.h>
 #include <ogldev/camera.h>
 #include <ogldev/glfw_window.h>
 #include <ogldev/lighting2.h>
@@ -35,9 +34,9 @@ private:
 	SimpleColorTechnique m_simpleColorEffect;
 	ogl::BasicCamera* m_pGameCamera = NULL;
 	ogl::DirectionalLight m_directionalLight;
-	BasicMesh* pMesh = NULL;
+	ogl::BasicMesh* pMesh = NULL;
 	Picking_Texture m_pickingTexture;
-	Vector3f m_worldPos[3];
+	ogl::Vector3f m_worldPos[3];
 	MouseButton m_leftMouseButton;
 	uint width;
 	uint height;

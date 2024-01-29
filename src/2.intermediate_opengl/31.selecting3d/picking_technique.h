@@ -5,6 +5,7 @@
 #include <ogldev/technique.h>
 #include <ogldev/types.h>
 
+using namespace ogl;
 class PickingTechnique : public Technique, public IRenderCallbacks
 {
 public:

@@ -2,6 +2,7 @@
 
 #include <ogldev/math3d.h>
 #include <ogldev/technique.h>
+using namespace ogl;
 
 class SimpleColorTechnique : public Technique
 {
