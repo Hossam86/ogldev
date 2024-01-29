@@ -72,7 +72,7 @@ glfw_init(int major_ver, int minor_ver, int width, int height, bool is_full_scre
 	//-------------------------------------------------------
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -90,39 +90,39 @@ glfw_init(int major_ver, int minor_ver, int width, int height, bool is_full_scre
 		OGLDEV_ERROR("glfw: failed to create window! %s", pDesc);
 		exit(1);
 	}
-		glfwMakeContextCurrent(window);
-	
-		init_glad();
+	glfwMakeContextCurrent(window);
 
-		// The following functions must be called after the context is made current
-		glGetIntegerv(GL_MAJOR_VERSION, &glMajorVersion);
-		glGetIntegerv(GL_MINOR_VERSION, &glMinorVersion);
+	init_glad();
 
-		// if (major_ver > 0)
-		// {
-		// 	if (major_ver != glMajorVersion)
-		// 	{
-		// 		OGLDEV_ERROR(
-		// 			"Requested major version %d is not the same as created version %d",
-		// 			major_ver,
-		// 			glMajorVersion);
-		// 		exit(0);
-		// 	}
-		// }
+	// The following functions must be called after the context is made current
+	glGetIntegerv(GL_MAJOR_VERSION, &glMajorVersion);
+	glGetIntegerv(GL_MINOR_VERSION, &glMinorVersion);
 
-		// if (minor_ver > 0)
-		// {
-		// 	if (minor_ver != glMinorVersion)
-		// 	{
-		// 		OGLDEV_ERROR(
-		// 			"Requested minor version %d is not the same as created version %d",
-		// 			minor_ver,
-		// 			glMinorVersion);
-		// 		exit(0);
-		// 	}
-		// }
+	// if (major_ver > 0)
+	// {
+	// 	if (major_ver != glMajorVersion)
+	// 	{
+	// 		OGLDEV_ERROR(
+	// 			"Requested major version %d is not the same as created version %d",
+	// 			major_ver,
+	// 			glMajorVersion);
+	// 		exit(0);
+	// 	}
+	// }
 
-		// glfw should be initialized before glad !
+	// if (minor_ver > 0)
+	// {
+	// 	if (minor_ver != glMinorVersion)
+	// 	{
+	// 		OGLDEV_ERROR(
+	// 			"Requested minor version %d is not the same as created version %d",
+	// 			minor_ver,
+	// 			glMinorVersion);
+	// 		exit(0);
+	// 	}
+	// }
+
+	// glfw should be initialized before glad !
 
 	enable_debug_output();
 
@@ -182,7 +182,7 @@ void
 Picking3d::InitMesh()
 {
 	pMesh = new BasicMesh();
-	pMesh->LoadMesh("../Resources/spider.obj");
+	pMesh->LoadMesh("../../Resources/spider.obj");
 	ogl::WorldTrans& world_transform = pMesh->GetWorldTransform();
 	world_transform.SetScale(0.1f);
 	world_transform.SetRotation(0.0f, 90.f, 0.0f);

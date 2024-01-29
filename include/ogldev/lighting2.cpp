@@ -40,7 +40,7 @@ namespace ogl
 		switch (SubTech)
 		{
 		case SUBTECH_DEFAULT:
-			if (!AddShader(GL_VERTEX_SHADER, "/Users/hossamsamir/Projects/ogldev_tutorials/resources/shaders/lighting_new.vs"))
+			if (!AddShader(GL_VERTEX_SHADER, "../../Resources/shaders/lighting_new.vs"))
 			{
 				return false;
 			}
@@ -48,24 +48,24 @@ namespace ogl
 			break;
 
 		case SUBTECH_PASSTHRU_GS:
-			if (!AddShader(GL_VERTEX_SHADER, "/Users/hossamsamir/Projects/ogldev_tutorials/resources/shaders/lighting_new_to_gs.vs"))
+			if (!AddShader(GL_VERTEX_SHADER, "../../Resources/shaders/lighting_new_to_gs.vs"))
 			{
 				return false;
 			}
 
-			if (!AddShader(GL_GEOMETRY_SHADER, "/Users/hossamsamir/Projects/ogldev_tutorials/resources/shaders/passthru.gs"))
+			if (!AddShader(GL_GEOMETRY_SHADER, "../../Resources/shaders/passthru.gs"))
 			{
 				return false;
 			}
 			break;
 
 		case SUBTECH_WIREFRAME_ON_MESH:
-			if (!AddShader(GL_VERTEX_SHADER, "/Users/hossamsamir/Projects/ogldev_tutorials/resources/shaders/lighting_new_to_gs.vs"))
+			if (!AddShader(GL_VERTEX_SHADER, "../../Resources/shaders/lighting_new_to_gs.vs"))
 			{
 				return false;
 			}
 
-			if (!AddShader(GL_GEOMETRY_SHADER, "/Users/hossamsamir/Projects/ogldev_tutorials/resources/shaders/wireframe_on_mesh.gs"))
+			if (!AddShader(GL_GEOMETRY_SHADER, "../../Resources/shaders/wireframe_on_mesh.gs"))
 			{
 				return false;
 			}
@@ -76,7 +76,7 @@ namespace ogl
 			exit(0);
 		}
 
-		if (!AddShader(GL_FRAGMENT_SHADER, "/Users/hossamsamir/Projects/ogldev_tutorials/resources/shaders/lighting_new.fs"))
+		if (!AddShader(GL_FRAGMENT_SHADER, "../../Resources/shaders/lighting_new.fs"))
 		{
 			return false;
 		}

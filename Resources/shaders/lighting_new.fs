@@ -1,4 +1,4 @@
-#version 410 core
+#version 420 core
 
 const int MAX_POINT_LIGHTS = 2;
 const int MAX_SPOT_LIGHTS = 2;
@@ -8,7 +8,8 @@ in vec3 Normal0;
 in vec3 LocalPos0;
 in vec3 WorldPos0;
 in vec4 LightSpacePos0; // required only for shadow mapping
-noperspective in vec3 EdgeDistance0;
+// noperspective in vec3 EdgeDistance0;
+in vec3 EdgeDistance0;
 
 out vec4 FragColor;
 
@@ -316,7 +317,7 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal,
             float SpecularExponent = 128.0;
 
             if (gEnableSpecularExponent) {
-                SpecularExponent = texture2D(gSamplerSpecularExponent, TexCoord0).r * 255.0;
+                SpecularExponent = texture(gSamplerSpecularExponent, TexCoord0).r * 255.0;
             }
 
             SpecularFactor = pow(SpecularFactor, SpecularExponent);
@@ -510,7 +511,7 @@ vec4 CalcPhongLighting()
         TotalLight += CalcSpotLight(gSpotLights[i], Normal);
     }
 
-    vec4 TempColor = texture2D(gSampler, TexCoord0.xy) * TotalLight;
+    vec4 TempColor = texture(gSampler, TexCoord0.xy) * TotalLight;
 
     if (gFogColor != vec3(0)) {
         float FogFactor = CalcFogFactor();
