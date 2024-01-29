@@ -4,7 +4,6 @@
 #include <ogldev/basic_mesh.h>
 #include <ogldev/camera.h>
 #include <ogldev/engine_common.h>
-#include <ogldev/glfw_window.h>
 #include <ogldev/math3d.h>
 #include <ogldev/utility.h>
 #include <ogldev/world_transform.h>
@@ -29,8 +28,8 @@ enable_debug_output()
 {
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(glDebugOutput, nullptr);
-	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+	// glDebugMessageCallback(glDebugOutput, nullptr);
+	// glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
 }
 
 // gLad:should be initialized before calling any OpenGL function.
@@ -69,24 +68,20 @@ IsGLVersionHigher(int MajorVer, int MinorVer)
 GLFWwindow*
 glfw_init(int major_ver, int minor_ver, int width, int height, bool is_full_screen, const char* title)
 {
-	glfw_lib_init();
-
-	GLFWmonitor* monitor = is_full_screen ? glfwGetPrimaryMonitor() : NULL;
-
+	// glfw:initialization and configuration
+	//-------------------------------------------------------
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	if (major_ver > 0)
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major_ver);
-	if (minor_ver > 0)
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor_ver);
-
-	GLFWwindow* window = glfwCreateWindow(width, height, title, monitor, NULL);
+	// glfw: window creation
+	//-------------------------------------------------------
+	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 	if (!window)
 	{
@@ -94,44 +89,44 @@ glfw_init(int major_ver, int minor_ver, int width, int height, bool is_full_scre
 		int error_code = glfwGetError(&pDesc);
 		OGLDEV_ERROR("glfw: failed to create window! %s", pDesc);
 		exit(1);
-
+	}
 		glfwMakeContextCurrent(window);
+	
+		init_glad();
 
 		// The following functions must be called after the context is made current
 		glGetIntegerv(GL_MAJOR_VERSION, &glMajorVersion);
 		glGetIntegerv(GL_MINOR_VERSION, &glMinorVersion);
 
-		if (major_ver > 0)
-		{
-			if (major_ver != glMajorVersion)
-			{
-				OGLDEV_ERROR(
-					"Requested major version %d is not the same as created version %d",
-					major_ver,
-					glMajorVersion);
-				exit(0);
-			}
-		}
+		// if (major_ver > 0)
+		// {
+		// 	if (major_ver != glMajorVersion)
+		// 	{
+		// 		OGLDEV_ERROR(
+		// 			"Requested major version %d is not the same as created version %d",
+		// 			major_ver,
+		// 			glMajorVersion);
+		// 		exit(0);
+		// 	}
+		// }
 
-		if (minor_ver > 0)
-		{
-			if (minor_ver != glMinorVersion)
-			{
-				OGLDEV_ERROR(
-					"Requested minor version %d is not the same as created version %d",
-					minor_ver,
-					glMinorVersion);
-				exit(0);
-			}
-		}
+		// if (minor_ver > 0)
+		// {
+		// 	if (minor_ver != glMinorVersion)
+		// 	{
+		// 		OGLDEV_ERROR(
+		// 			"Requested minor version %d is not the same as created version %d",
+		// 			minor_ver,
+		// 			glMinorVersion);
+		// 		exit(0);
+		// 	}
+		// }
 
 		// glfw should be initialized before glad !
-		init_glad();
 
-		enable_debug_output();
+	enable_debug_output();
 
-		glfwSwapInterval(1);
-	}
+	glfwSwapInterval(1);
 	return window;
 }
 
@@ -150,6 +145,7 @@ Picking3d::Picking3d()
 	// window size
 	width = 1920;
 	height = 1080;
+	m_lightingEffect = new LightingTechnique();
 }
 
 Picking3d::~Picking3d()
@@ -205,7 +201,7 @@ Picking3d::InitCamera()
 	PersProjInfo persProjInfo = {FOV, (float)width, (float)height, zNear, zFar};
 	m_pGameCamera = new ogl::BasicCamera(persProjInfo, pos, Target, Up);
 
-	if (!m_lightingEffect.Init())
+	if (!m_lightingEffect->Init())
 	{
 		printf("Error Initializing The Lighting Technique ");
 		exit(1);
@@ -249,10 +245,10 @@ Picking3d::PickingPhase()
 void
 Picking3d::InitShaders()
 {
-	m_lightingEffect.Enable();
-	m_lightingEffect.SetTextureUnit(COLOR_TEXTURE_UNIT_INDEX);
-	m_lightingEffect.SetSpecularExponentTextureUnit(SPECULAR_EXPONENT_UNIT_INDEX);
-	m_lightingEffect.SetMaterial(pMesh->GetMaterial());
+	m_lightingEffect->Enable();
+	m_lightingEffect->SetTextureUnit(COLOR_TEXTURE_UNIT_INDEX);
+	m_lightingEffect->SetSpecularExponentTextureUnit(SPECULAR_EXPONENT_UNIT_INDEX);
+	m_lightingEffect->SetMaterial(pMesh->GetMaterial());
 	m_pickingTexture.init(width, height);
 
 	if (!m_pickingEffect.Init())
@@ -328,25 +324,25 @@ Picking3d::RenderPhase()
 	}
 
 	// Render the objects as usual
-	m_lightingEffect.Enable();
+	m_lightingEffect->Enable();
 	for (unsigned int i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_worldPos); i++)
 	{
 		wt.SetPosition(m_worldPos[i]);
 		Matrix4f World = wt.GetMatrix();
 		Matrix4f WVP = projection * view * World;
-		m_lightingEffect.SetWVP(WVP);
+		m_lightingEffect->SetWVP(WVP);
 		Vector3f CameraLocalPos3f = wt.WorldPosToLocalPos(m_pGameCamera->GetPos());
-		m_lightingEffect.SetCameraLocalPos(CameraLocalPos3f);
+		m_lightingEffect->SetCameraLocalPos(CameraLocalPos3f);
 		m_directionalLight.CalcLocalDirection(wt);
-		m_lightingEffect.SetDirectionalLight(m_directionalLight);
+		m_lightingEffect->SetDirectionalLight(m_directionalLight);
 
 		if (i == clicked_object_id)
 		{
-			m_lightingEffect.SetColorMod(ogl::Vector4f(0.0f, 1.0, 0.0, 1.0f));
+			m_lightingEffect->SetColorMod(ogl::Vector4f(0.0f, 1.0, 0.0, 1.0f));
 		}
 		else
 		{
-			m_lightingEffect.SetColorMod(ogl::Vector4f(1.0f, 1.0, 1.0, 1.0f));
+			m_lightingEffect->SetColorMod(ogl::Vector4f(1.0f, 1.0, 1.0, 1.0f));
 		}
 
 		pMesh->Render(NULL);

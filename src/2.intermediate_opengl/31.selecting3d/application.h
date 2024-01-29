@@ -29,7 +29,7 @@ class Picking3d
 {
 private:
 	GLFWwindow* window = NULL;
-	ogl::LightingTechnique m_lightingEffect;
+	ogl::LightingTechnique * m_lightingEffect;
 	PickingTechnique m_pickingEffect;
 	SimpleColorTechnique m_simpleColorEffect;
 	ogl::BasicCamera* m_pGameCamera = NULL;
